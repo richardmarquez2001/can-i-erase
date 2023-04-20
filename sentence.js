@@ -1,6 +1,6 @@
 class Sentence {
   constructor(string, size = 30, x = 0, y = 0, font = "Georgia") {
-    this.string = [...string.toLowerCase()]
+    this.string = [...string]
     this.colors = {"red": color("red"), "green": color("green"), "black": color("black")}
     this.size = size
     this.x = x
