@@ -1,23 +1,38 @@
-
 class Sentence {
-  constructor(string, size = 18, x = 0, y = 0, font = "Georgia") {
+  constructor(string, size = 30, x = 0, y = 0, font = "Georgia") {
     this.string = [...string.toLowerCase()]
-    this.colors = ["red", "green", "black"]
+    this.colors = {"red": color("red"), "green": color("green"), "black": color("black")}
     this.size = size
     this.x = x
     this.y = y
     this.font = font
     this.index = 0
+    this.end = false
+    this.complete = false
 
     this.letters = this.split(this.string)
   }
 
   set currentIndex(index) {
     // can add validation
-    if(index < this.letters.length && index >= 0){
-      this.index = index
+    if(index <= this.letters.length && index >= 0){
+      if(index == this.letters.length){
+        this.end = true
+        let count = 0
+        for(let l of this.letters) {
+          if (l.color.toString() == color("red").toString()){
+            count+=1
+          }
+        }
+        if(count == 0){
+          this.complete = true
+        }
+      } else {
+        this.index = index
+      }
     }
-    else {
+    else
+    {
       // check for if the sentence is good?
     }
   }
@@ -41,24 +56,28 @@ class Sentence {
    */
   increment(color) {
     // Invalid color
-    if(!this.colors.includes(color)){
+    if(!color in this.colors){
       throw err
     }
 
     let letter = this.currentLetter
-    letter.color = color
+    letter.color = this.colors[color]
 
     this.currentIndex = this.currentIndex + 1
-    print("INC")
     return letter
   }
 
-  decrement() {
-    let letter = this.currentLetter
-    letter.color = this.colors[2]
+  decrement(color) {
+    if(this.end){
+      this.end = false
+      this.complete = false
+    }
+    else{
+      this.currentIndex = this.currentIndex - 1
+    }
 
-    this.currentIndex = this.currentIndex - 1
-    print("DEC", this.currentIndex)
+    let letter = this.currentLetter
+    letter.color = this.colors[color]
   }
 
   /**
@@ -74,7 +93,7 @@ class Sentence {
       letters.push({
         index: i,
         text: l,
-        color: this.colors[2],
+        color: this.colors["black"],
         isVisible: true,
         x: xOffset,
         y: 0
@@ -105,10 +124,15 @@ class Sentence {
    */
   drawLetter(letter, x, y) {
     // Checks if the letter is a space and was entered correctly
-    if(letter.text == " " && letter.color != "black"){
+    if(letter.text == " " && letter.color.toString() != this.colors["black"].toString()){
       noStroke();
-      // print(letter.color.toString())
-      setGradient(x + letter.x, y + letter.y, textWidth(letter.text), 12, color(255,0,0,0), color(255,0,0,150));
+      let tempColor1 = color(letter.color.toString())
+      let tempColor2 = color(letter.color.toString())
+      tempColor1.setAlpha(0)
+      tempColor2.setAlpha(150)
+      if(letter.color != "black"){
+        setGradient(x + letter.x, y + letter.y, textWidth(letter.text), this.size*.80, tempColor1, tempColor2);
+      }
     }
     textAlign(LEFT, TOP)
     textFont(this.font)
@@ -116,4 +140,17 @@ class Sentence {
     fill(letter.color)
     text(letter.text, x + letter.x, y + letter.y)
   }
+}
+
+function setGradient(x, y, w, h, c1, c2) {
+  push()
+  noFill();
+  // Top to bottom gradient
+  for (let i = y; i <= y + h; i++) {
+    let inter = map(i, y, y + h, 0, 1);
+    let c = lerpColor(c1, c2, inter);
+    stroke(c);
+    line(x, i, x + w, i);
+  }
+  pop()
 }
