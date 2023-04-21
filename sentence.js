@@ -135,7 +135,7 @@ class Sentence {
       }
     }
     textAlign(LEFT, TOP)
-    textFont(this.font)
+    // textFont(this.font)
     textSize(this.size)
     fill(letter.color)
     text(letter.text, x + letter.x, y + letter.y)

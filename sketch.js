@@ -1,13 +1,19 @@
+let fr = 30
 let currentGame
+let time
 
 function setup() {
-  createCanvas(400, 400);
-  currentGame = new Game()
+  createCanvas(windowWidth, windowHeight);
+  frameRate(fr)
+  currentGame = new Game(60,10)
+  currentGame.start()
 }
 
 function draw() {
-  currentGame.render()
-  noLoop()
+  time = Math.trunc(frameCount / fr)
+  let gameInfo = currentGame.render()
+  text(JSON.stringify(gameInfo), 30, 30)
+  // noLoop()
 }
 
 function keyPressed(e) {
