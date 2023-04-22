@@ -5,7 +5,7 @@ let time
 function setup() {
   createCanvas(windowWidth, windowHeight);
   frameRate(fr)
-  currentGame = new Game(60,10)
+  currentGame = new Game(GameMode.SENTENCES,60,10)
   currentGame.start()
 }
 

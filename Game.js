@@ -5,12 +5,12 @@
  * - Count the words in the sentence 
  * Visability
  * - Increase difficulty through text visiability. ie as time progresses erase the board.
+ * Sound Effects
+ * - Add more types of feedback when typing
  */
 
-function preload() {
-  randomWords = loadJSON('./words.json');
-}
-
+let randomWords
+let url = "https://techy-api.vercel.app/api/json"
 
 const GameState = {
   "IDLE": "IDLE",
@@ -18,12 +18,20 @@ const GameState = {
   "END": "END"
 }
 
-let randomWords
+const GameMode = {
+  "WORDS": "WORDS",
+  "SENTENCES": "SENTENCES"
+}
+
+function preload() {
+  randomWords = loadJSON('./words.json');
+}
 
 class Game {
-  constructor(timeLimit = 60, timeLevelDec = 5){
+  constructor(mode = GameMode.SENTENCES, timeLimit = 60, timeLevelDec = 5){
     this.timeLimit = timeLimit
     this.timeLevelDec = timeLevelDec
+    this.gameMode = mode
     this.gameState = GameState.IDLE
 
     this.points = 0
@@ -32,14 +40,30 @@ class Game {
     this.startingTime = 0
 
     this.timer = 0
+    this.loading = true
+  }
+
+  loadText() {
+    this.loading = true
+    switch(this.gameMode){
+      case GameMode.SENTENCES:
+        httpGet(url,"json",false, function(response){
+          this.currentWord = new Sentence(response.message)
+          this.loading = false
+        }.bind(this))
+      
+      case GameMode.WORDS:
+        this.currentWord = new Sentence(random(Object.values(randomWords)))
+        this.loading = false
+    }
   }
 
   stateManager() {
     if(this.gameState == GameState.PLAYING) {
       this.timer = this.startingTime - time
-      if(this.currentWord.complete) {
+      if(!this.loading && this.currentWord.complete) {
         this.setupLevel()
-      }else if(this.timer <= 0){
+      } else if(this.timer <= 0){
         this.end()
       }
     } else if(this.gameState == GameState.IDLE) {
@@ -57,7 +81,9 @@ class Game {
     if (this.stateManager() == GameState.PLAYING){
       // Render
       rect(100, 100, windowWidth-200, 200)
-      this.currentWord.render(100,100)
+      if(!this.loading){
+        this.currentWord.render(100,100)
+      }
     }
     pop()
 
@@ -86,7 +112,7 @@ class Game {
     frameCount = 0
 
     this.level += 1
-    this.currentWord = new Sentence(random(Object.values(randomWords)))
+    this.loadText()
   }
 
   score() {
