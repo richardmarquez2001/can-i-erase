@@ -10,7 +10,7 @@ function setup() {
 }
 
 function draw() {
-  time = Math.trunc(frameCount / fr)
+  time = (frameCount / fr).toFixed(2)
   let gameInfo = currentGame.render()
   text(JSON.stringify(gameInfo), 30, 30)
   // noLoop()

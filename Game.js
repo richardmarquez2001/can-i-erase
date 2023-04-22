@@ -34,6 +34,7 @@ class Game {
     this.gameMode = mode
     this.gameState = GameState.IDLE
 
+    this.currentText
     this.points = 0
     this.level = 0
     this.wpm = 0
@@ -48,23 +49,35 @@ class Game {
     switch(this.gameMode){
       case GameMode.SENTENCES:
         httpGet(url,"json",false, function(response){
-          this.currentWord = new Sentence(response.message)
+          this.currentText = new Sentence(response.message)
           this.loading = false
         }.bind(this))
-      
+        break;
       case GameMode.WORDS:
-        this.currentWord = new Sentence(random(Object.values(randomWords)))
+        this.currentText = new Sentence(random(Object.values(randomWords)))
         this.loading = false
+        break;
     }
   }
 
   stateManager() {
     if(this.gameState == GameState.PLAYING) {
-      this.timer = this.startingTime - time
-      if(!this.loading && this.currentWord.complete) {
-        this.setupLevel()
-      } else if(this.timer <= 0){
-        this.end()
+      this.timer = (this.startingTime - time).toFixed(2)
+      if(!this.loading){
+        if(this.currentText.complete) {
+          this.setupLevel()
+        } else if(this.timer <= 0){
+          this.end()
+        } else {
+          // Toggle letter visability based on timer
+          let eraseIndex = Math.trunc(map(time / (this.startingTime/(this.currentText.letters.length-1)), (this.currentText.letters.length-1)/20,this.currentText.letters.length-1-(this.currentText.letters.length-1)/20,-1, this.currentText.letters.length-1, true))
+          this.currentText.erase(eraseIndex)
+
+          // Alternative (Chunkier)
+          // let eraseIndex = Math.trunc(map(this.timer, this.startingTime - (this.startingTime/20), this.startingTime/20, -1, this.currentText.letters.length-1,true))
+          // print(eraseIndex,this.currentText.letters.length)
+          // this.currentText.erase(eraseIndex)
+        }
       }
     } else if(this.gameState == GameState.IDLE) {
       // print("Start game to render.")
@@ -82,7 +95,7 @@ class Game {
       // Render
       rect(100, 100, windowWidth-200, 200)
       if(!this.loading){
-        this.currentWord.render(100,100)
+        this.currentText.render(100,100)
       }
     }
     pop()
@@ -136,13 +149,13 @@ class Game {
   
     // inc and dec
     if(e.key == "Backspace"){
-      this.currentWord.decrement("black")
+      this.currentText.decrement("black")
     }
-    else if(e.key == this.currentWord.currentLetter.text) {
-      this.currentWord.increment("green")
+    else if(e.key == this.currentText.currentLetter.text) {
+      this.currentText.increment("green")
     }
     else if(e.key.length == 1){
-      this.currentWord.increment("red") 
+      this.currentText.increment("red") 
     } else if(e.key == "Escape") {
       this.start()
     }

@@ -11,10 +11,10 @@ class Sentence {
     this.complete = false
 
     this.letters = this.split(this.string)
+    this.lastErased = 0
   }
 
   set currentIndex(index) {
-    // can add validation
     if(index <= this.letters.length && index >= 0){
       if(index == this.letters.length){
         this.end = true
@@ -30,10 +30,6 @@ class Sentence {
       } else {
         this.index = index
       }
-    }
-    else
-    {
-      // check for if the sentence is good?
     }
   }
   get currentIndex() {
@@ -80,6 +76,14 @@ class Sentence {
     letter.color = this.colors[color]
   }
 
+  erase(index) {
+    if(index >= this.lastErased){
+      for(let i = this.lastErased; i <= index; i++)
+        this.letters[i].isVisible = false
+      this.lastErased = index
+    }
+  }
+
   /**
    * Creates a list of renderable letters
    * @param {string} string 
@@ -111,7 +115,9 @@ class Sentence {
   render(x = this.x, y = this.y) {
     push()
     for(let letter of this.letters){
-      this.drawLetter(letter, x, y)
+      if(letter.isVisible) {
+        this.drawLetter(letter, x, y)
+      }
     }
     pop()
   }
