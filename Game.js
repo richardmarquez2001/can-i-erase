@@ -9,6 +9,10 @@
 
 let randomWords
 let url = "https://techy-api.vercel.app/api/json"
+let gif
+let gifUrl = "./chatting.gif"
+let startingX = 350
+let startingY = 200
 
 const GameState = {
   "IDLE": "IDLE",
@@ -69,7 +73,10 @@ class Game {
         } else {
           // Toggle letter visability based on timer
           let eraseIndex = Math.trunc(map(time / (this.startingTime/(this.currentText.letters.length-1)), (this.currentText.letters.length-1)/20,this.currentText.letters.length-1-(this.currentText.letters.length-1)/20,-1, this.currentText.letters.length-1, true))
-          this.currentText.erase(eraseIndex)
+          this.currentText.erase(eraseIndex);
+          gif.size(50, 50); 
+          gif.position(startingX + (this.currentText.letters[eraseIndex+1].x - 30), startingY);
+
 
           // Alternative (Chunkier)
           // let eraseIndex = Math.trunc(map(this.timer, this.startingTime - (this.startingTime/20), this.startingTime/20, -1, this.currentText.letters.length-1,true))
@@ -87,13 +94,10 @@ class Game {
 
   render() {
     push()
-    background(220);
     // Determine if it render word
     if (this.stateManager() == GameState.PLAYING){
-      // Render
-      rect(100, 100, windowWidth-200, 200)
       if(!this.loading){
-        this.currentText.render(100,100)
+        this.currentText.render(startingX,startingY)
       }
     }
     pop()
@@ -107,6 +111,7 @@ class Game {
     this.level = 0
     this.wpm = 0
     this.startingTime = this.timeLimit
+    gif = createImg(gifUrl);
 
     this.setupLevel()
   }

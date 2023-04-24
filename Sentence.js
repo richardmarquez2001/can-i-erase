@@ -1,7 +1,7 @@
 class Sentence {
   constructor(string, size = 30, x = 0, y = 0, font = "Georgia") {
     this.string = [...string]
-    this.colors = {"red": color("red"), "green": color("green"), "black": color("black")}
+    this.colors = {"red": color("red"), "green": color("#2E8BC0"), "black": color("white")}
     this.size = size
     this.x = x
     this.y = y
