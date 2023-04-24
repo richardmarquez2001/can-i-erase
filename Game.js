@@ -3,8 +3,6 @@
  * WPM
  * - Time the user to see how long it takes to tpe the sentence
  * - Count the words in the sentence 
- * Visability
- * - Increase difficulty through text visiability. ie as time progresses erase the board.
  * Sound Effects
  * - Add more types of feedback when typing
  */
@@ -119,7 +117,7 @@ class Game {
   }
 
   setupLevel() {
-    this.points += this.timer
+    this.points += float(this.timer)
     this.startingTime = this.timeLimit - ((this.level) * this.timeLevelDec)
     this.timer = this.startingTime
     frameCount = 0
