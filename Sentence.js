@@ -1,7 +1,17 @@
+const letterState = {
+  "WRONG": "WRONG",
+  "RIGHT": "RIGHT",
+  "INCOMPLETE": "INCOMPLETE"
+}
+
 class Sentence {
-  constructor(string, size = 30, x = 0, y = 0, font = "Georgia") {
+  constructor(string, size = scale/30, x = 0, y = 0, font = myTextFont) {
     this.string = [...string]
-    this.colors = {"red": color("red"), "green": color("#2E8BC0"), "black": color("white")}
+    this.colors = {
+      "WRONG": color("red"), 
+      "RIGHT": color("#2E8BC0"),
+      "INCOMPLETE": color("white")
+    }
     this.size = size
     this.x = x
     this.y = y
@@ -20,7 +30,7 @@ class Sentence {
         this.end = true
         let count = 0
         for(let l of this.letters) {
-          if (l.color.toString() == color("red").toString()){
+          if (l.color.toString() == this.colors.WRONG.toString()){
             count+=1
           }
         }
@@ -77,11 +87,13 @@ class Sentence {
   }
 
   erase(index) {
+    // Get the last erased and returns it's x and y
     if(index >= this.lastErased){
       for(let i = this.lastErased; i <= index; i++)
         this.letters[i].isVisible = false
       this.lastErased = index
     }
+    return this.letters[this.lastErased]
   }
 
   /**
@@ -90,20 +102,53 @@ class Sentence {
    * @returns an array of letter objects
    */
   split(string) {
+    push()
     let letters = []
+    let letterWidth
+    let tempWords = ""
+    let tempString = ""
     let xOffset = 0
+    let yOffset = 0
+    let textBound
     textSize(this.size)
-    for( let [i, l] of string.entries() ){
-      letters.push({
-        index: i,
-        text: l,
-        color: this.colors["black"],
-        isVisible: true,
-        x: xOffset,
-        y: 0
-      })
-      xOffset += textWidth(l)
+    textFont(this.font)
+    // noFill()
+    // stroke("red")
+    // rectMode(CORNER)
+
+    let index = 0
+    for(let word of string.join("").split(/(\s+)/)){
+      tempWords += word
+      // If word does not fit on line go to the next one.
+      textBound = this.font.textBounds(tempWords, screen.x,screen.y)
+      if(textBound.w > screen.w){
+        yOffset += scale/30
+        xOffset = 0
+        tempString = ""
+        tempWords = word
+      }
+      for(let l of word){
+        index+=1
+        letterWidth = textWidth(l)
+        tempString += l
+        textBound = this.font.textBounds(tempString)
+        // rect(textBound.x,(textBound.y+yOffset+scale/30),textBound.w,textBound.h)
+  
+        letters.push({
+          index: index,
+          text: l,
+          color: this.colors.INCOMPLETE,
+          isVisible: true,
+          x: xOffset,
+          // y: l == " " ? (textBound.y+yOffset+scale/30) : yOffset,
+          // y: textBound.y+yOffset+scale/30,
+          y: yOffset,
+          width: letterWidth
+        })
+        xOffset += letterWidth
+      }
     }
+    pop()
     return letters
   }
 
@@ -129,22 +174,45 @@ class Sentence {
    * @param {*} y 
    */
   drawLetter(letter, x, y) {
+    push()
+    textSize(this.size)
+    textFont(this.font)
     // Checks if the letter is a space and was entered correctly
-    if(letter.text == " " && letter.color.toString() != this.colors["black"].toString()){
+    // if(letter.text == " " && letter.color.toString() != this.colors.INCOMPLETE.toString()){
+    if(letter.color.toString() != this.colors.INCOMPLETE.toString()){
       noStroke();
       let tempColor1 = color(letter.color.toString())
       let tempColor2 = color(letter.color.toString())
       tempColor1.setAlpha(0)
       tempColor2.setAlpha(150)
-      if(letter.color != "black"){
-        setGradient(x + letter.x, y + letter.y, textWidth(letter.text), this.size*.80, tempColor1, tempColor2);
+      if(letter.color != letterState.INCOMPLETE){
+        setGradient(x + letter.x, y + letter.y, textWidth(letter.text), this.size, tempColor1, tempColor2);
       }
     }
     textAlign(LEFT, TOP)
-    // textFont(this.font)
+    textFont(this.font)
     textSize(this.size)
     fill(letter.color)
     text(letter.text, x + letter.x, y + letter.y)
+    pop()
+  }
+
+  resize() {
+    push()
+    this.size = scale/30
+    textSize(this.size)
+    let xOffset = 0
+    for(let [i,l] of this.letters.entries()){
+      let letterWidth = textWidth(l.text)
+      this.letters[i] = {
+        ...l,
+        x: xOffset,
+        y: 0,
+        width: letterWidth
+      }
+      xOffset += letterWidth
+    }
+    pop()
   }
 }
 

@@ -1,78 +1,103 @@
-let menuItems = ["Start Game", "Options", "How To Play", "Credits", "Quit"];
-let selectedMenuItem = 0;
-let title = "Can I Erase?";
-
-function preload() {
-  img = loadImage("chalkboard.jpg");
-}
+let menuItems = ["Start Game", "Options", "How To Play", "Credits"];
+let title = "Can I Erase";
+let scale
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
 }
 
-function windowResized() {
-  resizeCanvas(windowWidth, windowHeight);
-}
-
-function titleText() {
-  textSize(80);
-  textAlign(CENTER);
-  text(title, windowWidth / 2, windowHeight / 4);
-}
-
-function menuText() {
-  textSize(50);
-  textAlign(CENTER, CENTER);
-  for (let i = 0; i < menuItems.length; i++) {
-    if (i === selectedMenuItem) {
-      //Highlights the selected menu item
-      if (frameCount % 60 < 30) {
-        fill(255, 0, 0);
-      }
-    } else {
-      fill(0);
-    }
-    text(menuItems[i], windowWidth / 2, windowHeight / 2 + i * 60);
+class Menu{
+  constructor() {
+    this.isVisible = true
+    this.ctx = createGraphics(width,height)
+    this.ctx.textFont(menuFont)
+    this.selectedMenuItem = 0
   }
-}
 
-function draw() {
-  background(220);
-  image(img, width / 2 - img.width / 2, height / 2 - img.height / 2);
-  titleText();
-  menuText();
-}
+  resize(w,h){
+    let tempCtx = createGraphics(w, h);
+    tempCtx.image(this.ctx, 0, 0, tempCtx.width, tempCtx.height);
+    this.ctx = tempCtx;
+    this.ctx.textFont(menuFont)
+  }
 
-function keyPressed() {
-  //Up arrow key or "w" key press can be used to go up in the menu
-  if (keyCode === UP_ARROW || keyCode === 87) {
-    selectedMenuItem--;
-    if (selectedMenuItem < 0) {
-      selectedMenuItem = menuItems.length - 1;
+  titleText() {
+    push()
+    this.ctx.textSize(scale/7);
+    this.ctx.textAlign(CENTER,CENTER);
+    this.ctx.fill(255);
+    this.ctx.text(title, this.ctx.width / 2, this.ctx.height / 4);
+    pop()
+  }
+
+  menuText() {
+    push()
+    this.ctx.textSize(scale/16);
+    this.ctx.textAlign(CENTER, CENTER);
+    for (let i = 0; i < menuItems.length; i++) {
+      if (i === this.selectedMenuItem) {
+        //Highlights the selected menu item
+        if (frameCount % 30 < 20) {
+          this.ctx.fill(255, 0, 0);
+        }
+      } else {
+        this.ctx.fill(255);
+      }
+      this.ctx.text(menuItems[i], this.ctx.width / 2, this.ctx.height / 2 + i * scale/15);
     }
-    //Down arrow key or "s" key press can be used to down up in the menu
-  } else if (keyCode === DOWN_ARROW || keyCode === 83) {
-    //
-    selectedMenuItem++;
-    if (selectedMenuItem >= menuItems.length) {
-      selectedMenuItem = 0;
+    pop()
+  }
+
+  render() {
+    push()
+    scale = min(windowWidth, windowHeight)*1.35
+    if(this.isVisible){
+      this.ctx.clear()
+      this.ctx.background(color(0,0,0,0));
+      this.titleText();
+      this.menuText();
+      push()
+      fill(25)
+      // rect(screen.x, screen.y, screen.w, screen.h)
+      pop()
+      image(this.ctx, screen.x, screen.y, screen.w, screen.h);
     }
-    //Menu Selection
-    //"Enter" key or "Space" key press can be used to select an option in the menu
-  } else if (keyCode === ENTER || keyCode === 32) {
-    //Enter to select an item on the menu
-    if (selectedMenuItem === 0) {
-      //Start game
-      window.location.href = "index.html";
-      //http://127.0.0.1:5500/can-i-erase/index.html
-    } else if (selectedMenuItem === 1) {
-      //Options
-    } else if (selectedMenuItem === 2) {
-      //How to play game
-    } else if (selectedMenuItem === 3) {
-      //Credits
-    } else if (selectedMenuItem === 4) {
-      //Quit
+    pop()
+  }
+
+  toggle(){
+    this.isVisible = !this.isVisible
+  }
+
+  keyPressed() {
+    //Up arrow key or "w" key press can be used to go up in the menu
+    if (keyCode === UP_ARROW || keyCode === 87) {
+      this.selectedMenuItem--;
+      if (this.selectedMenuItem < 0) {
+        this.selectedMenuItem = menuItems.length - 1;
+      }
+      //Down arrow key or "s" key press can be used to down up in the menu
+    } else if (keyCode === DOWN_ARROW || keyCode === 83) {
+      //
+      this.selectedMenuItem++;
+      if (this.selectedMenuItem >= menuItems.length) {
+        this.selectedMenuItem = 0;
+      }
+      //Menu Selection
+      //"Enter" key press can be used to select an option in the menu
+    } else if (keyCode === ENTER) {
+      //Enter to select an item on the menu
+      if (this.selectedMenuItem === 0) {
+        //Start game
+        this.toggle()
+        currentGame.start()
+      } else if (this.selectedMenuItem === 1) {
+        //Options
+      } else if (this.selectedMenuItem === 2) {
+        //How to play game
+      } else if (this.selectedMenuItem === 3) {
+        //Credits
+      }
     }
   }
 }

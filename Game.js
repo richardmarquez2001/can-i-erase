@@ -8,11 +8,10 @@
  */
 
 let randomWords
-let url = "https://techy-api.vercel.app/api/json"
-let gif
-let gifUrl = "./chatting.gif"
-let startingX = 350
-let startingY = 200
+let apiUrl = "https://techy-api.vercel.app/api/json"
+let gifUrl = "./assets/chatting.gif"
+// let sfx1
+// let sfx2
 
 const GameState = {
   "IDLE": "IDLE",
@@ -27,6 +26,8 @@ const GameMode = {
 
 function preload() {
   randomWords = loadJSON('./words.json');
+  // sfx1 = createAudio("./assets/scribble1.mp3")
+  // sfx2 = createAudio("./assets/scribble2.mp3")
 }
 
 class Game {
@@ -41,16 +42,25 @@ class Game {
     this.level = 0
     this.wpm = 0
     this.startingTime = 0
+    this.gif = createImg(gifUrl);
+    this.gif.position(screen.x,screen.y)
+    this.gif.hide()
 
     this.timer = 0
     this.loading = true
+  }
+
+  resize() {
+    if(this.currentText){
+      this.currentText.resize()
+    }
   }
 
   loadText() {
     this.loading = true
     switch(this.gameMode){
       case GameMode.SENTENCES:
-        httpGet(url,"json",false, function(response){
+        httpGet(apiUrl,"json",false, function(response){
           this.currentText = new Sentence(response.message)
           this.loading = false
         }.bind(this))
@@ -73,9 +83,9 @@ class Game {
         } else {
           // Toggle letter visability based on timer
           let eraseIndex = Math.trunc(map(time / (this.startingTime/(this.currentText.letters.length-1)), (this.currentText.letters.length-1)/20,this.currentText.letters.length-1-(this.currentText.letters.length-1)/20,-1, this.currentText.letters.length-1, true))
-          this.currentText.erase(eraseIndex);
-          gif.size(50, 50); 
-          gif.position(startingX + (this.currentText.letters[eraseIndex+1].x - 30), startingY);
+          let lastLetter = this.currentText.erase(eraseIndex);
+          this.gif.size(scale/25, scale/25); 
+          this.gif.position(screen.x + (lastLetter.x + lastLetter.width - scale/25), screen.y + (lastLetter.y));
 
 
           // Alternative (Chunkier)
@@ -97,7 +107,7 @@ class Game {
     // Determine if it render word
     if (this.stateManager() == GameState.PLAYING){
       if(!this.loading){
-        this.currentText.render(startingX,startingY)
+        this.currentText.render(screen.x,screen.y)
       }
     }
     pop()
@@ -108,16 +118,17 @@ class Game {
   start() {
     this.points = 0
     this.gameState = GameState.PLAYING
+    this.gif.show()
     this.level = 0
     this.wpm = 0
     this.startingTime = this.timeLimit
-    gif = createImg(gifUrl);
 
     this.setupLevel()
   }
 
   end() {
     this.gameState = GameState.END
+    this.gif.hide()
     print("GAME OVER")
   }
 
@@ -149,20 +160,27 @@ class Game {
 
   keyPressed(e) {
     // Prob some game state stuff
-  
-    // inc and dec
-    if(e.key == "Backspace"){
-      this.currentText.decrement("black")
+    if(this.gameState == GameState.PLAYING) {
+      // inc and dec
+      if(e.key == "Backspace"){
+        this.currentText.decrement(letterState.INCOMPLETE)
+      }
+      else if(e.key == this.currentText.currentLetter.text) {
+        this.currentText.increment(letterState.RIGHT)
+        // Play good audio
+        // sfx2.volume(1)
+        // sfx2.play()
+      }
+      else if(e.key.length == 1){
+        this.currentText.increment(letterState.WRONG) 
+        // Play bad audio
+        // sfx2.play()
+      } 
+      else if(e.key == "Escape") {
+        this.start()
+      }
+      // loop()
     }
-    else if(e.key == this.currentText.currentLetter.text) {
-      this.currentText.increment("green")
-    }
-    else if(e.key.length == 1){
-      this.currentText.increment("red") 
-    } else if(e.key == "Escape") {
-      this.start()
-    }
-    // loop()
   }
 }
 
