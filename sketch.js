@@ -7,21 +7,26 @@ let chalk;
 let bgImage;
 let screen;
 let randomWords;
+// let sfx1
+// let sfx2
 
 function preload() {
   bgImage = loadImage("./assets/board.webp");
   myTextFont = loadFont("./assets/Inter-Regular.ttf")
   menuFont = loadFont("./assets/Colored Crayons.ttf")
   randomWords = loadJSON('./words.json');
+
   // sfx1 = createAudio("./assets/scribble1.mp3")
   // sfx2 = createAudio("./assets/scribble2.mp3")
+  sfx1 = loadSound("./assets/scribble1.mp3")
+  sfx2 = loadSound("./assets/scribble2.mp3")
 }
 
 function setup() {
   screen = fitToBoard(bgImage)
   createCanvas(windowWidth, windowHeight);
   frameRate(fr);
-  currentGame = new Game(GameMode.WORDS, 30, 10);
+  currentGame = new Game(GameMode.SENTENCES, 30, 10);
   mainMenu = new Menu()
 }
 

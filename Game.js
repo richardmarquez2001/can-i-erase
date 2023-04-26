@@ -6,8 +6,6 @@
 
 let apiUrl = "https://techy-api.vercel.app/api/json"
 let gifUrl = "./assets/chatting.gif"
-// let sfx1
-// let sfx2
 
 const GameState = {
   "IDLE": "IDLE",
@@ -144,7 +142,7 @@ class Game {
   }
 
   wpm(string, time) {
-    return string ? (string == "" ? 0 : string.split(" ").length) * (60/time).toFixed(2) : "-"
+    return string ? ((string=="" ? 0 : string.split(" ").length) * (60/time)).toFixed(2) : "-"
   }
 
   keyPressed(e) {
@@ -157,13 +155,15 @@ class Game {
       else if(e.key == this.currentText.currentLetter.text) {
         this.currentText.increment(letterState.RIGHT)
         // Play good audio
-        // sfx2.volume(1)
-        // sfx2.play()
+        sfx2.setVolume(1)
+        sfx2.play()
       }
       else if(e.key.length == 1){
         this.currentText.increment(letterState.WRONG) 
         // Play bad audio
-        // sfx2.play()
+        
+        sfx2.setVolume(0.5)
+        sfx2.play()
       } 
       else if(e.key == "Escape") {
         this.start()
