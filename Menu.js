@@ -2,10 +2,6 @@ let menuItems = ["Start Game", "Options", "How To Play", "Credits"];
 let title = "Can I Erase";
 let scale
 
-function setup() {
-  createCanvas(windowWidth, windowHeight);
-}
-
 class Menu{
   constructor() {
     this.isVisible = true

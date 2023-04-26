@@ -1,13 +1,9 @@
 /**
  * TODO: 
- * WPM
- * - Time the user to see how long it takes to tpe the sentence
- * - Count the words in the sentence 
  * Sound Effects
  * - Add more types of feedback when typing
  */
 
-let randomWords
 let apiUrl = "https://techy-api.vercel.app/api/json"
 let gifUrl = "./assets/chatting.gif"
 // let sfx1
@@ -24,12 +20,6 @@ const GameMode = {
   "SENTENCES": "SENTENCES"
 }
 
-function preload() {
-  randomWords = loadJSON('./words.json');
-  // sfx1 = createAudio("./assets/scribble1.mp3")
-  // sfx2 = createAudio("./assets/scribble2.mp3")
-}
-
 class Game {
   constructor(mode = GameMode.SENTENCES, timeLimit = 60, timeLevelDec = 5){
     this.timeLimit = timeLimit
@@ -40,7 +30,6 @@ class Game {
     this.currentText
     this.points = 0
     this.level = 0
-    this.wpm = 0
     this.startingTime = 0
     this.gif = createImg(gifUrl);
     this.gif.position(screen.x,screen.y)
@@ -120,7 +109,6 @@ class Game {
     this.gameState = GameState.PLAYING
     this.gif.show()
     this.level = 0
-    this.wpm = 0
     this.startingTime = this.timeLimit
 
     this.setupLevel()
@@ -149,13 +137,14 @@ class Game {
       "Start": this.startingTime,
       "Points": this.points,
       "State": this.gameState,
+      "RequiredWPM": this.wpm(this.currentText?.string.join(""), this.startingTime),
+      "CurrentWPM": this.wpm(this.currentText?.string.slice(0,this.currentText?.currentIndex).join(""), this.startingTime-this.timer)
 
     }
   }
 
-  // TODO: Figure this out
-  wpm() {
-
+  wpm(string, time) {
+    return string ? (string == "" ? 0 : string.split(" ").length) * (60/time).toFixed(2) : "-"
   }
 
   keyPressed(e) {

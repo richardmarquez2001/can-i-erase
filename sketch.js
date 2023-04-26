@@ -6,18 +6,22 @@ let myTextFont;
 let chalk;
 let bgImage;
 let screen;
+let randomWords;
 
 function preload() {
+  bgImage = loadImage("./assets/board.webp");
+  myTextFont = loadFont("./assets/Inter-Regular.ttf")
+  menuFont = loadFont("./assets/Colored Crayons.ttf")
+  randomWords = loadJSON('./words.json');
+  // sfx1 = createAudio("./assets/scribble1.mp3")
+  // sfx2 = createAudio("./assets/scribble2.mp3")
 }
 
 function setup() {
-  bgImage = loadImage("./assets/board.webp");
   screen = fitToBoard(bgImage)
-  myTextFont = loadFont("./assets/Inter-Regular.ttf")
-  menuFont = loadFont("./assets/Colored Crayons.ttf")
   createCanvas(windowWidth, windowHeight);
   frameRate(fr);
-  currentGame = new Game(GameMode.SENTENCES, 30, 10);
+  currentGame = new Game(GameMode.WORDS, 30, 10);
   mainMenu = new Menu()
 }
 
@@ -26,8 +30,13 @@ function draw() {
   screen = fitToBoard(bgImage)
   time = (frameCount / fr).toFixed(2);
   mainMenu.render()
-  let gameInfo = currentGame.render();
-  text(JSON.stringify(gameInfo), 30, 30);
+  let gameInfo = JSON.stringify(currentGame.render());
+  push()
+  stroke("blue")
+  let idk = myTextFont.textBounds(gameInfo, 30, 30)
+  rect(idk.x,idk.y,idk.w,idk.h)
+  text(gameInfo, 30, 30);
+  pop()
   // noLoop()
 }
 
