@@ -1,11 +1,12 @@
-/**
+/** 
  * TODO: 
- * Sound Effects
- * - Add more types of feedback when typing
- */
+ * Sound Effects 
+ * - Add more types of feedback when typing 
+ */ 
 
 let apiUrl = "https://techy-api.vercel.app/api/json"
-let gifUrl = "./assets/chatting.gif"
+let imgUrl = "./owl.jpg"
+
 
 const GameState = {
   "IDLE": "IDLE",
@@ -29,9 +30,16 @@ class Game {
     this.points = 0
     this.level = 0
     this.startingTime = 0
-    this.gif = createImg(gifUrl);
-    this.gif.position(screen.x,screen.y)
-    this.gif.hide()
+    this.yPos = 0;
+    this.ySpeed = 2;
+    this.img = loadImage('./assets/owl.jpg');
+    if (this.yPos <= 0 || this.yPos + this.img.height >= height) {
+      this.ySpeed *= -1;
+    }
+
+    // this.gif.position(screen.x,screen.y);
+    // this.gif.hide()
+    image(this.img, 0, this.yPos);
 
     this.timer = 0
     this.loading = true
@@ -71,8 +79,18 @@ class Game {
           // Toggle letter visability based on timer
           let eraseIndex = Math.trunc(map(time / (this.startingTime/(this.currentText.letters.length-1)), (this.currentText.letters.length-1)/20,this.currentText.letters.length-1-(this.currentText.letters.length-1)/20,-1, this.currentText.letters.length-1, true))
           let lastLetter = this.currentText.erase(eraseIndex);
-          this.gif.size(scale/25, scale/25); 
-          this.gif.position(screen.x + (lastLetter.x + lastLetter.width - scale/25), screen.y + (lastLetter.y));
+
+
+          // this.gif.size(scale/25, scale/25); 
+          // this.gif.position(screen.x + (lastLetter.x + lastLetter.width - scale/25), screen.y + (lastLetter.y));
+
+          this.img.resize(scale/25, scale/25); 
+          image(this.img, screen.x + (lastLetter.x + lastLetter.width - scale/25), screen.y + (lastLetter.y) + this.yPos);
+          this.yPos += this.ySpeed * 2;
+
+          if (this.yPos > 30 || this.yPos < 0) {
+            this.ySpeed *= -1
+          }
 
 
           // Alternative (Chunkier)
@@ -105,7 +123,7 @@ class Game {
   start() {
     this.points = 0
     this.gameState = GameState.PLAYING
-    this.gif.show()
+    // this.gif.show()
     this.level = 0
     this.startingTime = this.timeLimit
 
@@ -114,7 +132,7 @@ class Game {
 
   end() {
     this.gameState = GameState.END
-    this.gif.hide()
+    // this.gif.hide()
     print("GAME OVER")
   }
 
