@@ -20,7 +20,7 @@ class Sentence {
     this.end = false
     this.complete = false
 
-    this.letters = this.split(this.string)
+    this.letters = this.split()
     this.lastErased = 0
   }
 
@@ -98,10 +98,9 @@ class Sentence {
 
   /**
    * Creates a list of renderable letters
-   * @param {string} string 
    * @returns an array of letter objects
    */
-  split(string) {
+  split() {
     push()
     let letters = []
     let letterWidth
@@ -116,8 +115,8 @@ class Sentence {
     // stroke("red")
     // rectMode(CORNER)
 
-    let index = 0
-    for(let word of string.join("").split(/(\s+)/)){
+    let index = -1
+    for(let word of this.string.join("").split(/(\s+)/)){
       tempWords += word
       // If word does not fit on line go to the next one.
       textBound = this.font.textBounds(tempWords, screen.x,screen.y)
@@ -133,12 +132,11 @@ class Sentence {
         tempString += l
         textBound = this.font.textBounds(tempString)
         // rect(textBound.x,(textBound.y+yOffset+scale/30),textBound.w,textBound.h)
-  
         letters.push({
           index: index,
           text: l,
-          color: this.colors.INCOMPLETE,
-          isVisible: true,
+          color: this.letters ? this.letters[index].color : this.colors.INCOMPLETE,
+          isVisible: this.letters ? this.letters[index].isVisible : true,
           x: xOffset,
           // y: l == " " ? (textBound.y+yOffset+scale/30) : yOffset,
           // y: textBound.y+yOffset+scale/30,
@@ -198,21 +196,8 @@ class Sentence {
   }
 
   resize() {
-    push()
     this.size = scale/30
-    textSize(this.size)
-    let xOffset = 0
-    for(let [i,l] of this.letters.entries()){
-      let letterWidth = textWidth(l.text)
-      this.letters[i] = {
-        ...l,
-        x: xOffset,
-        y: 0,
-        width: letterWidth
-      }
-      xOffset += letterWidth
-    }
-    pop()
+    this.letters = this.split()
   }
 }
 
