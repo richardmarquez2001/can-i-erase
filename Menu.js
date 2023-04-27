@@ -1,4 +1,4 @@
-let menuItems = ["Start Game", "Options", "How To Play", "Credits"];
+let menuItems = ["Start Game", "How To Play", "Credits"];
 let title = "Can I Erase";
 let scale
 
@@ -46,15 +46,15 @@ class Menu {
         pop()
     }
 
-    optionsText() {
-        push()
-        this.ctx.textSize(scale / 20);
-        this.ctx.textAlign(CENTER, CENTER);
-        this.ctx.fill(255);
-        this.ctx.text("Options", this.ctx.width / 2, this.ctx.height / 3.5);
-        this.ctx.text("Mute", this.ctx.width / 2, this.ctx.height / 2);
-        pop()
-    }
+    // optionsText() {
+    //     push()
+    //     this.ctx.textSize(scale / 20);
+    //     this.ctx.textAlign(CENTER, CENTER);
+    //     this.ctx.fill(255);
+    //     this.ctx.text("Options", this.ctx.width / 2, this.ctx.height / 3.5);
+    //     this.ctx.text("Mute", this.ctx.width / 2, this.ctx.height / 2);
+    //     pop()
+    // }
 
     howToPlayText() {
         push()
@@ -111,9 +111,9 @@ class Menu {
     }
 
     keyPressed() {
-        if(currentGame.gameState == GameState.IDLE){
+        if (currentGame.gameState == GameState.IDLE) {
             click.play()
-            if(this.renderText == this.menuText){
+            if (this.renderText == this.menuText) {
                 //Up arrow key or "w" key press can be used to go up in the menu
                 if (keyCode === UP_ARROW || keyCode === 87) {
                     this.selectedMenuItem--;
@@ -136,13 +136,13 @@ class Menu {
                     //Start game
                     this.toggle()
                     currentGame.start()
+                        // } else if (this.selectedMenuItem === 1) {
+                        //Options
+                        // this.renderText = this.optionsText
                 } else if (this.selectedMenuItem === 1) {
-                    //Options
-                    this.renderText = this.optionsText
-                } else if (this.selectedMenuItem === 2) {
                     //How to play game
                     this.renderText = this.howToPlayText
-                } else if (this.selectedMenuItem === 3) {
+                } else if (this.selectedMenuItem === 2) {
                     //Credits
                     this.renderText = this.creditsText
                 }
@@ -150,7 +150,7 @@ class Menu {
             } else if (keyCode === 27) { //Escape key
                 this.renderText = this.menuText
             }
-        } else if(currentGame.gameState == GameState.END){
+        } else if (currentGame.gameState == GameState.END) {
             if (keyCode === ENTER) {
                 click.play()
                 currentGame.gameState = GameState.IDLE
