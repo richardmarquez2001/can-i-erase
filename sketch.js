@@ -31,7 +31,7 @@ function setup() {
   screen = fitToBoard(bgImage);
   createCanvas(windowWidth, windowHeight);
   frameRate(fr);
-  currentGame = new Game(GameMode.SENTENCES, 30, 10);
+  currentGame = new Game(GameMode.SENTENCES, 30, 2);
   mainMenu = new Menu();
 }
 

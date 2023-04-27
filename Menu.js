@@ -87,6 +87,7 @@ class Menu {
         this.ctx.fill(255);
         this.ctx.text("GAME OVER", this.ctx.width / 2, this.ctx.height / 3.5);
         this.ctx.text(`Score: ${currentGame.score()["Points"]}`, this.ctx.width / 2, this.ctx.height / 2);
+        this.ctx.text(`Press enter to restart.`, this.ctx.width / 2, this.ctx.height / 1.5);
         pop()
     }
 
