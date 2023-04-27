@@ -80,6 +80,16 @@ class Menu {
         pop()
     }
 
+    endText() {
+        push()
+        this.ctx.textSize(scale / 10);
+        this.ctx.textAlign(CENTER, CENTER);
+        this.ctx.fill(255);
+        this.ctx.text("GAME OVER", this.ctx.width / 2, this.ctx.height / 3.5);
+        this.ctx.text(`Score: ${currentGame.score()["Points"]}`, this.ctx.width / 2, this.ctx.height / 2);
+        pop()
+    }
+
     render() {
         push()
         scale = min(windowWidth, windowHeight) * 1.35
@@ -101,41 +111,51 @@ class Menu {
     }
 
     keyPressed() {
-        //Up arrow key or "w" key press can be used to go up in the menu
-        if (keyCode === UP_ARROW || keyCode === 87) {
-            this.selectedMenuItem--;
-            x
-            if (this.selectedMenuItem < 0) {
-                this.selectedMenuItem = menuItems.length - 1;
+        if(currentGame.gameState == GameState.IDLE){
+            click.play()
+            if(this.renderText == this.menuText){
+                //Up arrow key or "w" key press can be used to go up in the menu
+                if (keyCode === UP_ARROW || keyCode === 87) {
+                    this.selectedMenuItem--;
+                    if (this.selectedMenuItem < 0) {
+                        this.selectedMenuItem = menuItems.length - 1;
+                    }
+                    //Down arrow key or "s" key press can be used to down up in the menu
+                } else if (keyCode === DOWN_ARROW || keyCode === 83) {
+                    this.selectedMenuItem++;
+                    if (this.selectedMenuItem >= menuItems.length) {
+                        this.selectedMenuItem = 0;
+                    }
+                }
             }
-            //Down arrow key or "s" key press can be used to down up in the menu
-        } else if (keyCode === DOWN_ARROW || keyCode === 83) {
-            //
-            this.selectedMenuItem++;
-            if (this.selectedMenuItem >= menuItems.length) {
-                this.selectedMenuItem = 0;
+            if (keyCode === ENTER) {
+                //Menu Selection
+                //"Enter" key press can be used to select an option in the menu
+                //"Enter" to select an item on the menu
+                if (this.selectedMenuItem === 0) {
+                    //Start game
+                    this.toggle()
+                    currentGame.start()
+                } else if (this.selectedMenuItem === 1) {
+                    //Options
+                    this.renderText = this.optionsText
+                } else if (this.selectedMenuItem === 2) {
+                    //How to play game
+                    this.renderText = this.howToPlayText
+                } else if (this.selectedMenuItem === 3) {
+                    //Credits
+                    this.renderText = this.creditsText
+                }
+                //"Escape" key press can be used to go back to the main menu
+            } else if (keyCode === 27) { //Escape key
+                this.renderText = this.menuText
             }
-            //Menu Selection
-            //"Enter" key press can be used to select an option in the menu
-        } else if (keyCode === ENTER) {
-            //"Enter" to select an item on the menu
-            if (this.selectedMenuItem === 0) {
-                //Start game
-                this.toggle()
-                currentGame.start()
-            } else if (this.selectedMenuItem === 1) {
-                //Options
-                this.renderText = this.optionsText
-            } else if (this.selectedMenuItem === 2) {
-                //How to play game
-                this.renderText = this.howToPlayText
-            } else if (this.selectedMenuItem === 3) {
-                //Credits
-                this.renderText = this.creditsText
+        } else if(currentGame.gameState == GameState.END){
+            if (keyCode === ENTER) {
+                click.play()
+                currentGame.gameState = GameState.IDLE
+                this.renderText = this.menuText
             }
-            //"Escape" key press can be used to go back to the main menu
-        } else if (keyCode === 27) { //Escape key
-            this.renderText = this.menuText
         }
     }
 }

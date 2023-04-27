@@ -123,9 +123,12 @@ class Game {
   start() {
     this.points = 0
     this.gameState = GameState.PLAYING
+    // this.gif.size(scale/25, scale/25); 
+    // this.gif.position(screen.x, screen.y);
     // this.gif.show()
     this.level = 0
     this.startingTime = this.timeLimit
+    setTimeout(() => {canierase.play()}, 1)
 
     this.setupLevel()
   }
@@ -133,6 +136,8 @@ class Game {
   end() {
     this.gameState = GameState.END
     // this.gif.hide()
+    mainMenu.renderText = mainMenu.endText
+    mainMenu.toggle()
     print("GAME OVER")
   }
 
@@ -173,21 +178,15 @@ class Game {
       else if(e.key == this.currentText.currentLetter.text) {
         this.currentText.increment(letterState.RIGHT)
         // Play good audio
-        sfx2.setVolume(1)
-        sfx2.play()
+        rightKey.setVolume(1)
+        rightKey.play()
       }
       else if(e.key.length == 1){
         this.currentText.increment(letterState.WRONG) 
         // Play bad audio
-        
-        sfx2.setVolume(0.5)
-        sfx2.play()
-      } 
-      else if(e.key == "Escape") {
-        this.start()
+        click.setVolume(1)
+        click.play()
       }
-      // loop()
     }
   }
 }
-

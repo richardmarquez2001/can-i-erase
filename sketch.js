@@ -7,8 +7,6 @@ let chalk;
 let bgImage;
 let screen;
 let randomWords;
-// let sfx1
-// let sfx2
 
 function preload() {
   bgImage = loadImage("./assets/board.webp");
@@ -16,10 +14,11 @@ function preload() {
   menuFont = loadFont("./assets/Colored Crayons.ttf")
   randomWords = loadJSON('./words.json');
 
-  // sfx1 = createAudio("./assets/scribble1.mp3")
-  // sfx2 = createAudio("./assets/scribble2.mp3")
-  sfx1 = loadSound("./assets/scribble1.mp3")
-  sfx2 = loadSound("./assets/scribble2.mp3")
+  rightKey = loadSound("./assets/scribble3.mp3")
+  // typing = loadSound("./assets/typing1.wav")
+  wrongKey = loadSound("./assets/wrong1.mp3")
+  canierase = loadSound("./assets/erase.mp3")
+  click = loadSound("./assets/click.mp3")
 }
 
 function setup() {
