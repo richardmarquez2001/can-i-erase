@@ -1,191 +1,226 @@
-/** 
- * TODO: 
- * Sound Effects 
- * - Add more types of feedback when typing 
- */ 
+/**
+ * TODO:
+ * Sound Effects
+ * - Add more types of feedback when typing
+ */
 
-let apiUrl = "https://techy-api.vercel.app/api/json"
-let imgUrl = "./owl.jpg"
-
-
-const GameState = {
-  "IDLE": "IDLE",
-  "PLAYING": "PLAYING",
-  "END": "END"
-}
+let apiUrl = "https://techy-api.vercel.app/api/json";
+let imgUrl = "./owl.jpg";
 
 const GameMode = {
-  "WORDS": "WORDS",
-  "SENTENCES": "SENTENCES"
-}
+  WORDS: "WORDS",
+  SENTENCES: "SENTENCES",
+};
 
 class Game {
-  constructor(mode = GameMode.SENTENCES, timeLimit = 60, timeLevelDec = 5){
-    this.timeLimit = timeLimit
-    this.timeLevelDec = timeLevelDec
-    this.gameMode = mode
-    this.gameState = GameState.IDLE
+  constructor(mode = GameMode.SENTENCES, timeLimit = 60, timeLevelDec = 5) {
+    this.timeLimit = timeLimit;
+    this.timeLevelDec = timeLevelDec;
+    this.gameMode = mode;
+    this.gameState = GameState.IDLE;
 
-    this.currentText
-    this.points = 0
-    this.level = 0
-    this.startingTime = 0
+    this.currentText;
+    this.points = 0;
+    this.level = 0;
+    this.startingTime = 0;
     this.yPos = 0;
     this.ySpeed = 2;
-    this.img = loadImage('./assets/owl.jpg');
+    this.img = loadImage("./assets/owl.jpg");
     if (this.yPos <= 0 || this.yPos + this.img.height >= height) {
       this.ySpeed *= -1;
     }
-
-    // this.gif.position(screen.x,screen.y);
-    // this.gif.hide()
     image(this.img, 0, this.yPos);
 
-    this.timer = 0
-    this.loading = true
+    this.timer = 0;
+    this.loading = true;
   }
 
   resize() {
-    if(this.currentText){
-      this.currentText.resize()
+    if (this.currentText) {
+      this.currentText.resize();
     }
   }
 
   loadText() {
-    this.loading = true
-    switch(this.gameMode){
+    this.loading = true;
+    switch (this.gameMode) {
       case GameMode.SENTENCES:
-        httpGet(apiUrl,"json",false, function(response){
-          this.currentText = new Sentence(response.message)
-          this.loading = false
-        }.bind(this))
+        httpGet(
+          apiUrl,
+          "json",
+          false,
+          function (response) {
+            this.currentText = new Sentence(response.message);
+            this.loading = false;
+          }.bind(this)
+        );
         break;
       case GameMode.WORDS:
-        this.currentText = new Sentence(random(Object.values(randomWords)))
-        this.loading = false
+        this.currentText = new Sentence(random(Object.values(randomWords)));
+        this.loading = false;
         break;
     }
   }
 
   stateManager() {
-    if(this.gameState == GameState.PLAYING) {
-      this.timer = (this.startingTime - time).toFixed(2)
-      if(!this.loading){
-        if(this.currentText.complete) {
-          this.setupLevel()
-        } else if(this.timer <= 0){
-          this.end()
+    if (this.gameState == GameState.PLAYING) {
+      this.timer = (this.startingTime - time).toFixed(2);
+      if (!this.loading) {
+        if (this.currentText.complete) {
+          this.setupLevel();
+        } else if (this.timer <= 0) {
+          this.end();
         } else {
           // Toggle letter visability based on timer
-          let eraseIndex = Math.trunc(map(time / (this.startingTime/(this.currentText.letters.length-1)), (this.currentText.letters.length-1)/20,this.currentText.letters.length-1-(this.currentText.letters.length-1)/20,-1, this.currentText.letters.length-1, true))
+          let eraseIndex = Math.trunc(
+            map(
+              time /
+                (this.startingTime / (this.currentText.letters.length - 1)),
+              (this.currentText.letters.length - 1) / 20,
+              this.currentText.letters.length -
+                1 -
+                (this.currentText.letters.length - 1) / 20,
+              -1,
+              this.currentText.letters.length - 1,
+              true
+            )
+          );
           let lastLetter = this.currentText.erase(eraseIndex);
 
-
-          // this.gif.size(scale/25, scale/25); 
-          // this.gif.position(screen.x + (lastLetter.x + lastLetter.width - scale/25), screen.y + (lastLetter.y));
-
-          this.img.resize(scale/25, scale/25); 
-          image(this.img, screen.x + (lastLetter.x + lastLetter.width - scale/25), screen.y + (lastLetter.y) + this.yPos);
+          this.img.resize(scale / 25, scale / 25);
+          image(
+            this.img,
+            screen.x + (lastLetter.x + lastLetter.width - scale / 25),
+            screen.y + screen.h / 3 + lastLetter.y + this.yPos
+          );
           this.yPos += this.ySpeed * 2;
 
           if (this.yPos > 30 || this.yPos < 0) {
-            this.ySpeed *= -1
+            this.ySpeed *= -1;
           }
-
-
-          // Alternative (Chunkier)
-          // let eraseIndex = Math.trunc(map(this.timer, this.startingTime - (this.startingTime/20), this.startingTime/20, -1, this.currentText.letters.length-1,true))
-          // print(eraseIndex,this.currentText.letters.length)
-          // this.currentText.erase(eraseIndex)
         }
       }
-    } else if(this.gameState == GameState.IDLE) {
+    } else if (this.gameState == GameState.IDLE) {
       // print("Start game to render.")
-    } else if(this.gameState == GameState.END) {
+    } else if (this.gameState == GameState.END) {
       // print("Restart Game")
     }
-    return this.gameState
+    return this.gameState;
   }
 
   render() {
-    push()
+    push();
     // Determine if it render word
-    if (this.stateManager() == GameState.PLAYING){
-      if(!this.loading){
-        this.currentText.render(screen.x,screen.y)
+    if (this.stateManager() == GameState.PLAYING) {
+      if (!this.loading) {
+        this.currentText.render(screen.x, screen.y + screen.h / 3);
       }
     }
-    pop()
+    pop();
 
-    return this.score()
+    return this.score();
   }
 
   start() {
-    this.points = 0
-    this.gameState = GameState.PLAYING
-    // this.gif.size(scale/25, scale/25); 
-    // this.gif.position(screen.x, screen.y);
-    // this.gif.show()
-    this.level = 0
-    this.startingTime = this.timeLimit
-    setTimeout(() => {canierase.play()}, 1)
+    this.points = 0;
+    this.gameState = GameState.PLAYING;
+    this.level = 0;
+    this.startingTime = this.timeLimit;
+    setTimeout(() => {
+      canierase.play();
+    }, 1);
 
-    this.setupLevel()
+    this.setupLevel();
   }
 
   end() {
-    this.gameState = GameState.END
-    // this.gif.hide()
-    mainMenu.renderText = mainMenu.endText
-    mainMenu.toggle()
-    print("GAME OVER")
+    this.gameState = GameState.END;
+    mainMenu.renderText = mainMenu.endText;
+    mainMenu.toggle();
+    print("GAME OVER");
   }
 
   setupLevel() {
-    this.points += float(this.timer)
-    this.startingTime = this.timeLimit - ((this.level) * this.timeLevelDec)
-    this.timer = this.startingTime
-    frameCount = 0
+    this.points += float(this.timer);
+    this.startingTime = this.timeLimit - this.level * this.timeLevelDec;
+    this.timer = this.startingTime;
+    frameCount = 0;
 
-    this.level += 1
-    this.loadText()
+    this.level += 1;
+    this.loadText();
+  }
+
+  drawStats(gameInfo, screen) {
+    push();
+
+    const currWPM = this.wpm(
+      this.currentText?.string
+        .slice(0, this.currentText?.currentIndex)
+        .join(""),
+      this.startingTime - this.timer
+    );
+    let levelText = `Level: ${this.level}`;
+    let pointsText = `Points: ${this.points}`;
+    let timerText = `Time: ${this.startingTime}`;
+    let wpmText = `WPM: ${currWPM}`;
+    let yOffset = 50;
+
+    stroke("white");
+    fill("white");
+    myTextFont.textBounds(gameInfo, screen.w, screen.h);
+    textSize(scale / 30);
+    textFont(menuFont);
+    
+    text(
+      `${levelText} ${pointsText} ${timerText} ${wpmText}`,
+      screen.x,
+      screen.y + yOffset
+    );
+    pop();
   }
 
   score() {
     return {
-      "Level": this.level,
-      "Time": this.timer,
-      "Start": this.startingTime,
-      "Points": this.points,
-      "State": this.gameState,
-      "RequiredWPM": this.wpm(this.currentText?.string.join(""), this.startingTime),
-      "CurrentWPM": this.wpm(this.currentText?.string.slice(0,this.currentText?.currentIndex).join(""), this.startingTime-this.timer)
-
-    }
+      Level: this.level,
+      Time: this.timer,
+      Start: this.startingTime,
+      Points: this.points,
+      State: this.gameState,
+      RequiredWPM: this.wpm(
+        this.currentText?.string.join(""),
+        this.startingTime
+      ),
+      CurrentWPM: this.wpm(
+        this.currentText?.string
+          .slice(0, this.currentText?.currentIndex)
+          .join(""),
+        this.startingTime - this.timer
+      ),
+    };
   }
 
   wpm(string, time) {
-    return string ? ((string=="" ? 0 : string.split(" ").length) * (60/time)).toFixed(2) : "-"
+    return string
+      ? ((string == "" ? 0 : string.split(" ").length) * (60 / time)).toFixed(2)
+      : "-";
   }
 
   keyPressed(e) {
     // Prob some game state stuff
-    if(this.gameState == GameState.PLAYING) {
+    if (this.gameState == GameState.PLAYING) {
       // inc and dec
-      if(e.key == "Backspace"){
-        this.currentText.decrement(letterState.INCOMPLETE)
-      }
-      else if(e.key == this.currentText.currentLetter.text) {
-        this.currentText.increment(letterState.RIGHT)
+      if (e.key == "Backspace") {
+        this.currentText.decrement(letterState.INCOMPLETE);
+      } else if (e.key == this.currentText.currentLetter.text) {
+        this.currentText.increment(letterState.RIGHT);
         // Play good audio
-        rightKey.setVolume(1)
-        rightKey.play()
-      }
-      else if(e.key.length == 1){
-        this.currentText.increment(letterState.WRONG) 
+        rightKey.setVolume(1);
+        rightKey.play();
+      } else if (e.key.length == 1) {
+        this.currentText.increment(letterState.WRONG);
         // Play bad audio
-        click.setVolume(1)
-        click.play()
+        click.setVolume(1);
+        click.play();
       }
     }
   }
